@@ -68,6 +68,10 @@ export function MarketMapView() {
       const maplibregl = await import('maplibre-gl');
       if (cancelled || !containerRef.current) return;
 
+      // Load MapLibre's worker from our own public/ copy. Without this,
+      // Turbopack can't resolve the worker URL ("Worker failed to load").
+      maplibregl.setWorkerUrl('/maplibre-gl-worker.mjs');
+
       const map = new maplibregl.Map({
         container: containerRef.current,
         style: {
