@@ -56,6 +56,7 @@ export function MarketMapView() {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const markersRef = useRef<Marker[]>([]);
+  const resizeObsRef = useRef<ResizeObserver | null>(null);
   const [mapReady, setMapReady] = useState(false);
 
   useEffect(() => {
@@ -87,15 +88,29 @@ export function MarketMapView() {
           layers: [{ id: 'osm', type: 'raster', source: 'osm' }],
         },
         center: DUSHANBE,
-        zoom: 15,
+        zoom: 14,
       });
       map.addControl(new maplibregl.NavigationControl(), 'top-right');
-      map.on('load', () => !cancelled && setMapReady(true));
+      map.on('load', () => {
+        if (cancelled) return;
+        // Force a resize: the container's final size may differ from the size
+        // MapLibre measured at init, which otherwise leaves the map blank.
+        map.resize();
+        setMapReady(true);
+      });
+
+      // Keep the canvas matched to the container whenever it changes size.
+      const ro = new ResizeObserver(() => map.resize());
+      ro.observe(containerRef.current);
+      resizeObsRef.current = ro;
+
       mapRef.current = map;
     })();
 
     return () => {
       cancelled = true;
+      resizeObsRef.current?.disconnect();
+      resizeObsRef.current = null;
       markersRef.current.forEach((m) => m.remove());
       markersRef.current = [];
       mapRef.current?.remove();
@@ -132,7 +147,11 @@ export function MarketMapView() {
       if (located.length > 0) {
         const bounds = new maplibregl.LngLatBounds();
         located.forEach((s) => bounds.extend([s.longitude!, s.latitude!]));
-        map.fitBounds(bounds, { padding: 70, maxZoom: 17 });
+        // Resize first (container may have just become visible), then fit the
+        // markers. Cap the zoom at 16 — the demo sections are very close
+        // together, so a higher zoom would request sparse tiles and look empty.
+        map.resize();
+        map.fitBounds(bounds, { padding: 80, maxZoom: 16, duration: 0 });
       }
     })();
   }, [gates, mapReady, view]);
@@ -191,7 +210,10 @@ export function MarketMapView() {
         <MarketPlan gates={gates} shopsBySection={shopsBySection} query={query} />
       ) : (
         <div className="relative h-[60vh] min-h-[380px] overflow-hidden rounded-card border border-line bg-white">
-          <div ref={containerRef} className="absolute inset-0" />
+          {/* IMPORTANT: size the map container with h-full (not absolute
+              inset-0). MapLibre forces position:relative on its container, which
+              cancels `inset-0` and collapses the height to 0 (blank map). */}
+          <div ref={containerRef} className="h-full w-full" />
           {!mapReady ? (
             <div className="absolute inset-0 grid place-items-center bg-canvas/60">
               <LoadingState label={tc('loading')} />
