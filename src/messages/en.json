@@ -119,7 +119,11 @@
     "shops": "Shops",
     "demoNotice": "Demo map. Real market coordinates will be added once verified data is collected with permission.",
     "selectHint": "Select a shop to see its details and location.",
-    "noCoordinates": "Location not set yet"
+    "noCoordinates": "Location not set yet",
+    "tabPlan": "Plan",
+    "tabMap": "Map",
+    "aisle": "Aisle",
+    "shopsHere": "shops"
   },
   "auth": {
     "loginTitle": "Welcome back",

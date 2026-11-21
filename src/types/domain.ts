@@ -48,6 +48,7 @@ export interface Shop {
   name?: string;
   description?: string | null;
   translations?: TranslationMap;
+  sectionId?: string | null;
   gateCode?: string | null;
   sectionCode?: string | null;
   sectionName?: string | null;

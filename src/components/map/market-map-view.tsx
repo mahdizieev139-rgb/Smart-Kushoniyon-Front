@@ -1,56 +1,70 @@
 /**
- * MarketMapView — the interactive market map.
+ * MarketMapView — the interactive market map, with two complementary views:
  *
- * Design notes:
- *  - MapLibre GL is loaded only in the browser (dynamic import inside an
- *    effect) because it touches `window`.
- *  - We use free OpenStreetMap raster tiles so no API key is required.
- *  - The map centers on Dushanbe city (public location). We do NOT invent the
- *    market's internal coordinates: markers appear only for gates/sections that
- *    actually have verified coordinates. Everything else is listed in the side
- *    panel with a clear "location not set" note. All data here is DEMO.
+ *   1. "Plan"  (default): a self-contained top-down floor plan built from the
+ *      gates/sections data. Always renders — no external tiles or coordinates
+ *      required — so the user ALWAYS sees the market layout.
+ *   2. "Map"  : a geographic MapLibre map (free OpenStreetMap tiles) centered on
+ *      Dushanbe, with a marker for every section that has coordinates.
  *
- * The side panel lets customers search shops and browse gates → sections.
- * Selecting a section that has coordinates flies the map to it.
+ * MapLibre is loaded only in the browser and only when the Map view is active.
+ * The data here is DEMO (sample coordinates near Dushanbe) — not the verified
+ * real market layout. We never fabricate the actual on-the-ground positions.
  */
 'use client';
 
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { Store, DoorOpen, Search, MapPin } from 'lucide-react';
+import { Search, MapPin, Map as MapIcon, LayoutGrid } from 'lucide-react';
 import type { Map as MapLibreMap, Marker } from 'maplibre-gl';
-import { useMarketMap, type MarketMapSection } from '@/features/market-map/market-map-api';
+import { useMarketMap } from '@/features/market-map/market-map-api';
 import { useShops } from '@/features/shops/shops-api';
-import { Link } from '@/i18n/navigation';
-import { Badge } from '@/components/ui/badge';
-import { LoadingState } from '@/components/ui/states';
-import type { Locale } from '@/types/domain';
+import { MarketPlan } from './market-plan';
+import { LoadingState, ErrorState } from '@/components/ui/states';
+import { cn } from '@/lib/utils';
+import type { Locale, Shop } from '@/types/domain';
 
-// Dushanbe city center — a public, well-known location (not the market's
-// internal layout, which we never fabricate).
-const DUSHANBE: [number, number] = [68.787, 38.5598];
+// Dushanbe city center — a public, well-known location.
+const DUSHANBE: [number, number] = [68.782, 38.5605];
 
 export function MarketMapView() {
   const locale = useLocale() as Locale;
   const t = useTranslations('map');
   const tc = useTranslations('common');
+  const ts = useTranslations('states');
 
+  const [view, setView] = useState<'plan' | 'map'>('plan');
+  const [query, setQuery] = useState('');
+
+  const { data: gates, isLoading, isError, refetch } = useMarketMap(locale);
+  const { data: shopsData } = useShops({ locale, limit: 100 });
+
+  // Group shops by their section so the plan can place them in the right row.
+  const shopsBySection = useMemo(() => {
+    const map = new Map<string, Shop[]>();
+    for (const shop of shopsData?.items ?? []) {
+      if (!shop.sectionId) continue;
+      const list = map.get(shop.sectionId) ?? [];
+      list.push(shop);
+      map.set(shop.sectionId, list);
+    }
+    return map;
+  }, [shopsData]);
+
+  // ----- Geographic map (only mounted when the Map view is active) -----
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const markersRef = useRef<Marker[]>([]);
   const [mapReady, setMapReady] = useState(false);
-  const [shopQuery, setShopQuery] = useState('');
 
-  const { data: gates, isLoading } = useMarketMap(locale);
-  const { data: shopsData } = useShops({ locale, q: shopQuery || undefined, limit: 20 });
-
-  // 1) Initialize the map once.
   useEffect(() => {
+    if (view !== 'map') return;
     let cancelled = false;
+    setMapReady(false);
 
     (async () => {
-      if (!containerRef.current || mapRef.current) return;
+      if (!containerRef.current) return;
       const maplibregl = await import('maplibre-gl');
       if (cancelled || !containerRef.current) return;
 
@@ -69,7 +83,7 @@ export function MarketMapView() {
           layers: [{ id: 'osm', type: 'raster', source: 'osm' }],
         },
         center: DUSHANBE,
-        zoom: 12,
+        zoom: 15,
       });
       map.addControl(new maplibregl.NavigationControl(), 'top-right');
       map.on('load', () => !cancelled && setMapReady(true));
@@ -78,20 +92,20 @@ export function MarketMapView() {
 
     return () => {
       cancelled = true;
+      markersRef.current.forEach((m) => m.remove());
+      markersRef.current = [];
       mapRef.current?.remove();
       mapRef.current = null;
     };
-  }, []);
+  }, [view]);
 
-  // 2) Add markers for sections that have real coordinates.
+  // Place a marker for every section that has coordinates.
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !mapReady || !gates) return;
+    if (view !== 'map' || !map || !mapReady || !gates) return;
 
     (async () => {
       const maplibregl = await import('maplibre-gl');
-
-      // Clear previous markers.
       markersRef.current.forEach((m) => m.remove());
       markersRef.current = [];
 
@@ -100,7 +114,7 @@ export function MarketMapView() {
         .filter((s) => s.latitude != null && s.longitude != null);
 
       located.forEach((section) => {
-        const marker = new maplibregl.Marker({ color: '#163A63' })
+        const marker = new maplibregl.Marker({ color: '#2878D0' })
           .setLngLat([section.longitude!, section.latitude!])
           .setPopup(
             new maplibregl.Popup({ offset: 24 }).setHTML(
@@ -111,21 +125,13 @@ export function MarketMapView() {
         markersRef.current.push(marker);
       });
 
-      // Fit to markers if we have any; otherwise stay on the city view.
       if (located.length > 0) {
         const bounds = new maplibregl.LngLatBounds();
         located.forEach((s) => bounds.extend([s.longitude!, s.latitude!]));
-        map.fitBounds(bounds, { padding: 60, maxZoom: 17 });
+        map.fitBounds(bounds, { padding: 70, maxZoom: 17 });
       }
     })();
-  }, [gates, mapReady]);
-
-  function flyToSection(section: MarketMapSection) {
-    const map = mapRef.current;
-    if (map && section.latitude != null && section.longitude != null) {
-      map.flyTo({ center: [section.longitude, section.latitude], zoom: 18 });
-    }
-  }
+  }, [gates, mapReady, view]);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
@@ -135,8 +141,51 @@ export function MarketMapView() {
         <p>{t('demoNotice')}</p>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
-        {/* Map */}
+      {/* Toolbar: view toggle + search */}
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="inline-flex rounded-xl border border-line bg-white p-1">
+          <button
+            onClick={() => setView('plan')}
+            className={cn(
+              'inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium',
+              view === 'plan' ? 'bg-brand text-white' : 'text-muted hover:bg-canvas',
+            )}
+          >
+            <LayoutGrid className="h-4 w-4" aria-hidden />
+            {t('tabPlan')}
+          </button>
+          <button
+            onClick={() => setView('map')}
+            className={cn(
+              'inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium',
+              view === 'map' ? 'bg-brand text-white' : 'text-muted hover:bg-canvas',
+            )}
+          >
+            <MapIcon className="h-4 w-4" aria-hidden />
+            {t('tabMap')}
+          </button>
+        </div>
+
+        <div className="flex h-11 items-center gap-2 rounded-xl border border-line bg-white px-3.5 sm:w-80">
+          <Search className="h-4 w-4 shrink-0 text-muted" aria-hidden />
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={t('searchPlaceholder')}
+            aria-label={t('searchPlaceholder')}
+            className="h-full w-full bg-transparent text-sm outline-none placeholder:text-muted/70"
+          />
+        </div>
+      </div>
+
+      {/* Content */}
+      {isLoading ? (
+        <LoadingState label={tc('loading')} />
+      ) : isError || !gates ? (
+        <ErrorState title={ts('errorTitle')} text={ts('errorText')} onRetry={() => refetch()} retryLabel={tc('retry')} />
+      ) : view === 'plan' ? (
+        <MarketPlan gates={gates} shopsBySection={shopsBySection} query={query} />
+      ) : (
         <div className="relative h-[60vh] min-h-[380px] overflow-hidden rounded-card border border-line bg-white">
           <div ref={containerRef} className="absolute inset-0" />
           {!mapReady ? (
@@ -145,74 +194,7 @@ export function MarketMapView() {
             </div>
           ) : null}
         </div>
-
-        {/* Side panel */}
-        <aside className="flex max-h-[60vh] flex-col overflow-hidden rounded-card border border-line bg-white">
-          {/* Shop search */}
-          <div className="border-b border-line p-3">
-            <div className="flex h-10 items-center gap-2 rounded-lg border border-line px-3">
-              <Search className="h-4 w-4 text-muted" aria-hidden />
-              <input
-                value={shopQuery}
-                onChange={(e) => setShopQuery(e.target.value)}
-                placeholder={t('searchPlaceholder')}
-                aria-label={t('searchPlaceholder')}
-                className="h-full w-full bg-transparent text-sm outline-none placeholder:text-muted/70"
-              />
-            </div>
-          </div>
-
-          <div className="flex-1 overflow-y-auto">
-            {/* Shop results (when searching) */}
-            {shopQuery && shopsData ? (
-              <ul className="divide-y divide-line">
-                {shopsData.items.map((shop) => (
-                  <li key={shop.id}>
-                    <Link
-                      href={`/shops/${shop.slug}`}
-                      className="flex items-center gap-2 px-4 py-3 text-sm hover:bg-canvas"
-                    >
-                      <Store className="h-4 w-4 text-brand" aria-hidden />
-                      <span className="font-medium">{shop.name ?? shop.slug}</span>
-                    </Link>
-                  </li>
-                ))}
-                {shopsData.items.length === 0 ? (
-                  <li className="px-4 py-6 text-center text-sm text-muted">{t('selectHint')}</li>
-                ) : null}
-              </ul>
-            ) : isLoading ? (
-              <LoadingState />
-            ) : (
-              /* Gates → sections tree */
-              <div className="p-3">
-                {gates?.map((gate) => (
-                  <div key={gate.id} className="mb-4 last:mb-0">
-                    <div className="mb-1.5 flex items-center gap-2 px-1 text-sm font-semibold text-navy-ink">
-                      <DoorOpen className="h-4 w-4 text-brand" aria-hidden />
-                      {gate.name ?? gate.code}
-                    </div>
-                    <ul className="space-y-1">
-                      {gate.sections.map((section) => (
-                        <li key={section.id}>
-                          <button
-                            onClick={() => flyToSection(section)}
-                            disabled={section.latitude == null}
-                            className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm hover:bg-canvas disabled:cursor-default"
-                          >
-                            <span className="text-ink">{section.name ?? section.code}</span>
-                            <Badge variant="neutral">{section.shopCount}</Badge>
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </aside>
-      </div>
+      )}
     </div>
   );
 }
