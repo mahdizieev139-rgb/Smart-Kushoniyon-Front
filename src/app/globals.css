@@ -1,26 +1,89 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ============================================================
+   KUSHONIYON design tokens.
+
+   We register brand colors, fonts, radii and shadows with Tailwind's @theme so
+   they become real utilities: bg-navy, text-brand, font-display, shadow-card,
+   rounded-card, etc. Changing a value here updates the whole app.
+   ============================================================ */
+@theme {
+  /* Brand palette (from the brief) + a restrained construction-amber accent. */
+  --color-navy: #163a63; /* primary dark — headers, strong text */
+  --color-navy-ink: #0e2440; /* deepest navy for big headings */
+  --color-brand: #2878d0; /* primary action blue */
+  --color-brand-600: #1f66b8; /* hover state */
+  --color-brand-50: #eaf2fc; /* tinted backgrounds */
+  --color-canvas: #f4f6f9; /* app background */
+  --color-amber: #e8a33d; /* "featured" accent, used sparingly */
+  --color-amber-50: #fbf2e2;
+
+  /* Neutral text + lines. */
+  --color-ink: #0f1b2d; /* body text */
+  --color-muted: #5b6b82; /* secondary text */
+  --color-line: #e3e8ef; /* borders / dividers */
+
+  /* Typography roles (actual font files wired in layout.tsx via next/font). */
+  --font-display: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, monospace;
+
+  /* Rounded corners + soft, business-like shadows. */
+  --radius-card: 0.875rem;
+  --shadow-card: 0 1px 2px rgba(15, 27, 45, 0.04), 0 8px 24px rgba(15, 27, 45, 0.06);
+  --shadow-pop: 0 12px 40px rgba(15, 27, 45, 0.14);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+/* ---- Base element styles ---- */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    color: var(--color-navy-ink);
+    letter-spacing: -0.02em;
+  }
+
+  /* Prices and numeric data use the mono face with tabular figures so columns
+     of prices line up neatly. */
+  .num {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Visible keyboard focus everywhere (accessibility floor). */
+  :focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  ::selection {
+    background: var(--color-brand);
+    color: white;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Respect users who prefer reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }
