@@ -53,3 +53,25 @@ export function useShopBySlug(slug: string, locale: Locale) {
 export function fetchShopById(id: string, locale: Locale): Promise<Shop> {
   return api<Shop>(`/shops/${id}?locale=${locale}`, { auth: false });
 }
+
+// ---- Seller mutations (require auth) ----
+
+export interface ShopTranslationInput {
+  locale: Locale;
+  name: string;
+  description?: string;
+}
+
+export interface CreateShopPayload {
+  translations: ShopTranslationInput[];
+  phone?: string;
+  sectionId?: string;
+}
+
+export function createShop(payload: CreateShopPayload): Promise<Shop> {
+  return api<Shop>('/shops', { method: 'POST', body: payload });
+}
+
+export function updateShop(id: string, payload: Partial<CreateShopPayload>): Promise<Shop> {
+  return api<Shop>(`/shops/${id}`, { method: 'PATCH', body: payload });
+}

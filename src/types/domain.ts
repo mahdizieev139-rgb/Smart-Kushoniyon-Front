@@ -29,6 +29,14 @@ export interface Translation {
   description?: string | null;
 }
 
+/**
+ * The backend resolves translations into BOTH a flat `name`/`description` (for
+ * the requested locale) AND a map keyed by locale, e.g.
+ *   { tj: { name, description }, ru: {...}, en: {...} }
+ * We use the map to prefill edit forms with every language.
+ */
+export type TranslationMap = Partial<Record<Locale, { name: string; description?: string | null }>>;
+
 /** A shop as returned to the public (with resolved translations). */
 export interface Shop {
   id: string;
@@ -39,7 +47,7 @@ export interface Shop {
   // name/description for the requested locale. We support both.
   name?: string;
   description?: string | null;
-  translations?: Translation[];
+  translations?: TranslationMap;
   gateCode?: string | null;
   sectionCode?: string | null;
   sectionName?: string | null;
@@ -59,7 +67,7 @@ export interface Product {
   availability: ProductAvailability;
   name?: string;
   description?: string | null;
-  translations?: Translation[];
+  translations?: TranslationMap;
   images?: { id: string; imageUrl: string }[];
   shop?: Pick<Shop, 'id' | 'slug' | 'name' | 'phone'>;
   createdAt?: string;
@@ -70,7 +78,7 @@ export interface Category {
   slug: string;
   parentId: string | null;
   name?: string;
-  translations?: Translation[];
+  translations?: TranslationMap;
   productCount?: number;
 }
 

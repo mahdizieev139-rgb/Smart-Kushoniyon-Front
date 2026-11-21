@@ -55,3 +55,41 @@ export function useProduct(id: string, locale: Locale) {
     enabled: Boolean(id),
   });
 }
+
+// ---- Seller mutations (require auth; backend checks shop ownership) ----
+
+export interface ProductTranslationInput {
+  locale: Locale;
+  name: string;
+  description?: string;
+}
+
+export interface CreateProductPayload {
+  shopId: string;
+  categoryId?: string;
+  price: number;
+  currency?: string;
+  availability?: 'IN_STOCK' | 'OUT_OF_STOCK' | 'PREORDER';
+  translations: ProductTranslationInput[];
+}
+
+export type UpdateProductPayload = Partial<Omit<CreateProductPayload, 'shopId'>>;
+
+export function createProduct(payload: CreateProductPayload): Promise<Product> {
+  return api<Product>('/products', { method: 'POST', body: payload });
+}
+
+export function updateProduct(id: string, payload: UpdateProductPayload): Promise<Product> {
+  return api<Product>(`/products/${id}`, { method: 'PATCH', body: payload });
+}
+
+export function deleteProduct(id: string): Promise<null> {
+  return api<null>(`/products/${id}`, { method: 'DELETE' });
+}
+
+/** Upload one or more image files to a product (multipart form data). */
+export function uploadProductImages(productId: string, files: File[]): Promise<unknown> {
+  const form = new FormData();
+  files.forEach((file) => form.append('images', file));
+  return api(`/products/${productId}/images`, { method: 'POST', body: form });
+}
