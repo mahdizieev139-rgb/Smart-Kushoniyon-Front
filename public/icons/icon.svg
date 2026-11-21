@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <!-- Maskable-safe: the logo sits within the central ~80% safe zone. -->
+  <rect width="512" height="512" fill="#163A63"/>
+  <g stroke="#FFFFFF" stroke-width="22" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <!-- Market gate roofline -->
+    <path d="M150 360 V215 L256 150 L362 215 V360"/>
+    <!-- Gate base + doorway -->
+    <path d="M150 360 H362 M210 360 V268 H302 V360"/>
+  </g>
+</svg>

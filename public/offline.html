@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="tj">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Офлайн · Kushoniyon</title>
+    <style>
+      :root { color-scheme: light; }
+      body {
+        margin: 0; min-height: 100vh; display: grid; place-items: center;
+        font-family: system-ui, -apple-system, sans-serif;
+        background: #f4f6f9; color: #0f1b2d; text-align: center; padding: 24px;
+      }
+      .card { max-width: 420px; }
+      .mark {
+        width: 64px; height: 64px; margin: 0 auto 20px; border-radius: 16px;
+        background: #163a63; display: grid; place-items: center;
+      }
+      h1 { font-size: 1.4rem; margin: 0 0 8px; color: #163a63; }
+      p { color: #5b6b82; line-height: 1.5; margin: 0 0 20px; }
+      button {
+        border: 0; background: #2878d0; color: #fff; font-weight: 600;
+        padding: 12px 22px; border-radius: 12px; cursor: pointer; font-size: 0.95rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div class="mark">
+        <svg width="34" height="34" viewBox="0 0 26 26" fill="none" aria-hidden="true">
+          <path d="M7 19V9.5L13 6l6 3.5V19" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M7 19h12M10 19v-5h6v5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <!-- Trilingual, since the app serves tj/ru/en. -->
+      <h1>Шумо офлайн ҳастед</h1>
+      <p>
+        Пайвасти интернет нест. Маълумоти нишондодашуда метавонад кӯҳна бошад.<br />
+        Нет подключения к интернету. · You are offline.
+      </p>
+      <button onclick="location.reload()">Аз нав кӯшиш кунед</button>
+    </div>
+  </body>
+</html>

@@ -1,36 +1,119 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# KUSHONIYON SMART MARKET — Frontend
 
-## Getting Started
+The web frontend for **Kushoniyon Smart Market**, a B2B SaaS marketplace for
+Kushoniyon Market in Dushanbe, Tajikistan. It lets customers browse shops,
+products, prices and an interactive market map, and gives sellers and
+administrators dashboards to manage the marketplace.
 
-First, run the development server:
+Built with **Next.js (App Router)** and talks to the separate backend REST API
+(repository **`Smart-Kushoniyon-Back`**) at `/api/v1`.
+
+> **Trilingual:** the entire interface is available in **Tajik (default),
+> Russian and English**.
+
+---
+
+## Tech stack
+
+- **Next.js 16** (App Router, React 19, TypeScript)
+- **Tailwind CSS v4** design tokens + small UI component library
+- **next-intl** — i18n with locale-prefixed routes (`/tj`, `/ru`, `/en`)
+- **TanStack Query** — server data fetching/caching
+- **Zustand** — auth state (access token kept in memory)
+- **React Hook Form + Zod** — forms & validation
+- **MapLibre GL** — interactive market map
+- **PWA** — installable, with an offline fallback
+
+## Requirements
+
+- Node.js 20+ (developed on Node 24)
+- The backend running locally (see `Smart-Kushoniyon-Back`) on `http://localhost:4000`
+
+## Getting started
 
 ```bash
+# 1. Install dependencies
+npm install
+
+# 2. Configure environment
+cp .env.example .env.local
+#   NEXT_PUBLIC_API_URL should point to the backend, e.g.
+#   http://localhost:4000/api/v1
+
+# 3. Run the dev server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+#   open http://localhost:3000  (redirects to /tj)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Demo logins (seeded by the backend, password `Demo1234!`):
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Role | Email |
+|------|-------|
+| Seller | `seller@kushoniyon.local` |
+| Admin | `admin@kushoniyon.local` |
+| Customer | `customer@kushoniyon.local` |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Scripts
 
-## Learn More
+| Command | What it does |
+|---------|--------------|
+| `npm run dev` | Start the dev server (http://localhost:3000) |
+| `npm run build` | Production build |
+| `npm run start` | Serve the production build |
+| `npm run typecheck` | TypeScript check (no emit) |
+| `npm run test` | Run unit tests (Vitest) |
+| `npm run lint` | ESLint |
 
-To learn more about Next.js, take a look at the following resources:
+## Project structure
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+src/
+├── app/[locale]/        # Pages (public + seller + admin), grouped by locale
+│   ├── page.tsx         # Homepage
+│   ├── shops/ products/ map/ login/ register/
+│   ├── seller/          # Seller dashboard (guarded)
+│   └── admin/           # Admin dashboard (guarded)
+├── components/          # UI, layout, home, shops, products, map, dashboard…
+├── features/            # Data access + React Query hooks per domain
+├── stores/              # Zustand auth store
+├── lib/                 # api-client, utils, query helpers, roles
+├── i18n/                # next-intl routing + navigation
+├── messages/            # tj / ru / en dictionaries
+└── types/               # Shared domain types
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## How it talks to the backend
 
-## Deploy on Vercel
+- One API client (`src/lib/api-client.ts`) prepends `NEXT_PUBLIC_API_URL`,
+  attaches the Bearer access token, and silently refreshes it on a 401 using the
+  HttpOnly refresh cookie.
+- Public list endpoints take `?locale=` and return localized content.
+- Dashboard routes are guarded in the browser (`RequireAuth`) **and** enforced
+  by the backend — the browser guard is for UX only, never the security boundary.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Internationalization
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+All interface text lives in `src/messages/{tj,ru,en}.json` — nothing is
+hardcoded in components. The language switcher (globe icon) swaps the locale
+prefix while keeping the user on the same page.
+
+## PWA
+
+The app is installable (`public/manifest.webmanifest`) and registers a service
+worker (`public/sw.js`) in production. The worker caches static assets and shows
+`public/offline.html` when offline. It **never** caches API, auth, or
+seller/admin responses, so private data is not stored in a shared cache.
+
+## Deployment (manual)
+
+The project owner configures GitHub, hosting, domain and server. In short:
+
+1. Set `NEXT_PUBLIC_API_URL` to the production backend URL.
+2. `npm run build` then `npm run start` (or deploy to a Node host / Vercel).
+3. Serve over HTTPS (required for the PWA and secure cookies).
+
+See the backend repo's `docs/deployment.md` for the API side.
+
+## License
+
+Proprietary — © Kushoniyon Smart Market.

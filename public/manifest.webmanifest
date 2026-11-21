@@ -1,0 +1,20 @@
+{
+  "name": "Kushoniyon Smart Market",
+  "short_name": "Kushoniyon",
+  "description": "Digital marketplace for Kushoniyon Market, Dushanbe — shops, materials, prices and the market map.",
+  "lang": "tj",
+  "start_url": "/tj",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F4F6F9",
+  "theme_color": "#163A63",
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

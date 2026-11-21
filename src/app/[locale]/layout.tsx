@@ -6,12 +6,13 @@
  * app in the i18n provider, the data/auth providers, and the shared header and
  * footer.
  */
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { notFound } from 'next/navigation';
 import { NextIntlClientProvider, hasLocale } from 'next-intl';
 import { Manrope, IBM_Plex_Sans, IBM_Plex_Mono } from 'next/font/google';
 import { routing } from '@/i18n/routing';
 import { Providers } from '@/components/providers';
+import { PwaRegister } from '@/components/pwa-register';
 import { SiteHeader } from '@/components/layout/site-header';
 import { SiteFooter } from '@/components/layout/site-footer';
 import '../globals.css';
@@ -42,6 +43,21 @@ export const metadata: Metadata = {
   },
   description:
     'Digital marketplace for Kushoniyon Market, Dushanbe — find shops, construction materials, prices and locations.',
+  manifest: '/manifest.webmanifest',
+  appleWebApp: {
+    capable: true,
+    title: 'Kushoniyon',
+    statusBarStyle: 'default',
+  },
+  icons: {
+    icon: '/icons/icon.svg',
+    apple: '/icons/icon.svg',
+  },
+};
+
+// Theme color for the browser UI / installed app title bar.
+export const viewport: Viewport = {
+  themeColor: '#163A63',
 };
 
 // Pre-generate the three locale routes at build time.
@@ -65,6 +81,7 @@ export default async function LocaleLayout({
       <body className="min-h-dvh">
         <NextIntlClientProvider>
           <Providers>
+            <PwaRegister />
             <div className="flex min-h-dvh flex-col">
               <SiteHeader />
               <main className="flex-1">{children}</main>
