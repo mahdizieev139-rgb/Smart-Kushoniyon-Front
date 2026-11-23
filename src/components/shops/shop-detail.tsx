@@ -13,6 +13,7 @@ import { useShopBySlug } from '@/features/shops/shops-api';
 import { useProducts } from '@/features/products/products-api';
 import { ProductCard } from '@/components/products/product-card';
 import { LocatorChip } from '@/components/ui/locator-chip';
+import { FavoriteButton } from '@/components/favorites/favorite-button';
 import { Card, CardBody } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { LoadingState, EmptyState, ErrorState, Skeleton } from '@/components/ui/states';
@@ -46,7 +47,8 @@ export function ShopDetail({ slug }: { slug: string }) {
             <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-50 text-brand">
               <Store className="h-6 w-6" aria-hidden />
             </span>
-            <h1 className="text-2xl font-bold sm:text-3xl">{name}</h1>
+            <h1 className="flex-1 text-2xl font-bold sm:text-3xl">{name}</h1>
+            <FavoriteButton type="shop" id={shop.id} />
           </div>
           {shop.description ? (
             <p className="mt-4 max-w-2xl text-muted">{shop.description}</p>

@@ -15,6 +15,7 @@ import { useProduct } from '@/features/products/products-api';
 import { useQuery } from '@tanstack/react-query';
 import { fetchShopById } from '@/features/shops/shops-api';
 import { ProductImage } from '@/components/ui/product-image';
+import { FavoriteButton } from '@/components/favorites/favorite-button';
 import { AvailabilityBadge } from './availability-badge';
 import { Card, CardBody } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -90,9 +91,12 @@ export function ProductDetail({ id }: { id: string }) {
 
         {/* Info */}
         <div>
-          <div className="flex items-center gap-2">
-            <AvailabilityBadge availability={product.availability} />
-            {product.status !== 'APPROVED' ? <Badge variant="warning">{product.status}</Badge> : null}
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <AvailabilityBadge availability={product.availability} />
+              {product.status !== 'APPROVED' ? <Badge variant="warning">{product.status}</Badge> : null}
+            </div>
+            <FavoriteButton type="product" id={product.id} />
           </div>
           <h1 className="mt-3 text-2xl font-bold sm:text-3xl">{name}</h1>
           <p className="num mt-3 text-3xl font-bold text-navy-ink">

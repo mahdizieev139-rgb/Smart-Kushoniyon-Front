@@ -11,7 +11,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Menu, X, LogOut, LayoutDashboard } from 'lucide-react';
+import { Menu, X, LogOut, LayoutDashboard, Heart } from 'lucide-react';
 import { Link, usePathname } from '@/i18n/navigation';
 import { useAuthStore } from '@/stores/auth-store';
 import { dashboardPath } from '@/lib/roles';
@@ -34,6 +34,7 @@ export function SiteHeader() {
     { href: '/shops', label: t('shops') },
     { href: '/products', label: t('products') },
     { href: '/map', label: t('map') },
+    { href: '/calculator', label: t('calculator') },
   ];
 
   const isActive = (href: string) =>
@@ -65,6 +66,13 @@ export function SiteHeader() {
 
         {/* Right actions */}
         <div className="flex items-center gap-1.5">
+          <Link
+            href="/favorites"
+            aria-label={t('favorites')}
+            className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-white/90 hover:bg-white/10"
+          >
+            <Heart className="h-5 w-5" aria-hidden />
+          </Link>
           <LanguageSwitcher />
 
           <div className="hidden items-center gap-2 md:flex">
