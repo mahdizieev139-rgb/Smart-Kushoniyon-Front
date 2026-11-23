@@ -13,7 +13,6 @@ import { CategoriesStrip } from '@/components/home/categories-strip';
 import { FeaturedShops } from '@/components/home/featured-shops';
 import { PopularProducts } from '@/components/home/popular-products';
 import { SellSteps } from '@/components/home/sell-steps';
-import { Pricing } from '@/components/home/pricing';
 import { LocatorChip } from '@/components/ui/locator-chip';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -129,9 +128,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* ---------- PRICING (proposed SaaS plans) ---------- */}
-      <Pricing />
     </>
   );
 }

@@ -14,7 +14,6 @@
     "back": "Back",
     "demoBadge": "DEMO",
     "currency": "TJS",
-    "perMonth": "/month",
     "previous": "Previous",
     "next": "Next",
     "page": "Page",
@@ -57,17 +56,7 @@
     "sellStep2Text": "Prices, photos and descriptions in three languages.",
     "sellStep3Title": "Get approved and sell",
     "sellStep3Text": "Admin approves your shop and it goes live on the map.",
-    "becomeSeller": "Become a seller",
-    "pricingTitle": "Simple monthly pricing",
-    "pricingSubtitle": "For the market administration. Proposed plans — not a confirmed agreement.",
-    "planBasic": "Basic",
-    "planExtended": "Extended",
-    "planBasicF1": "Shop & product listings",
-    "planBasicF2": "Interactive market map",
-    "planBasicF3": "Three languages",
-    "planExtendedF1": "Everything in Basic",
-    "planExtendedF2": "Featured shops & ads",
-    "planExtendedF3": "Advanced analytics"
+    "becomeSeller": "Become a seller"
   },
   "shops": {
     "title": "Shops",
