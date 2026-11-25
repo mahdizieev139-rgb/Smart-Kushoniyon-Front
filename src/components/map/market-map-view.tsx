@@ -19,9 +19,10 @@ import { useLocale, useTranslations } from 'next-intl';
 import { Search, MapPin, Map as MapIcon, LayoutGrid } from 'lucide-react';
 import type { Map as MapLibreMap, Marker } from 'maplibre-gl';
 import { useMarketMap } from '@/features/market-map/market-map-api';
+import { getDemoMarket } from '@/features/market-map/demo-market';
 import { useShops } from '@/features/shops/shops-api';
 import { MarketPlan } from './market-plan';
-import { LoadingState, ErrorState } from '@/components/ui/states';
+import { LoadingState } from '@/components/ui/states';
 import { cn } from '@/lib/utils';
 import type { Locale, Shop } from '@/types/domain';
 
@@ -32,16 +33,20 @@ export function MarketMapView() {
   const locale = useLocale() as Locale;
   const t = useTranslations('map');
   const tc = useTranslations('common');
-  const ts = useTranslations('states');
 
   const [view, setView] = useState<'plan' | 'map'>('plan');
   const [query, setQuery] = useState('');
 
-  const { data: gates, isLoading, isError, refetch } = useMarketMap(locale);
+  const { data: gates, isLoading, isError } = useMarketMap(locale);
   const { data: shopsData } = useShops({ locale, limit: 100 });
 
+  // When the backend is unavailable or empty, fall back to a built-in DEMO
+  // layout so the page always shows a complete market plan (never an error) —
+  // the same graceful degradation the homepage uses.
+  const usingDemo = (isError || !gates || gates.length === 0) && !isLoading;
+
   // Group shops by their section so the plan can place them in the right row.
-  const shopsBySection = useMemo(() => {
+  const liveShopsBySection = useMemo(() => {
     const map = new Map<string, Shop[]>();
     for (const shop of shopsData?.items ?? []) {
       if (!shop.sectionId) continue;
@@ -51,6 +56,16 @@ export function MarketMapView() {
     }
     return map;
   }, [shopsData]);
+
+  const demo = useMemo(() => getDemoMarket(), []);
+  const effectiveGates = useMemo(
+    () => (usingDemo ? demo.gates : gates ?? []),
+    [usingDemo, demo, gates],
+  );
+  const effectiveShops = useMemo(
+    () => (usingDemo ? demo.shopsBySection : liveShopsBySection),
+    [usingDemo, demo, liveShopsBySection],
+  );
 
   // ----- Geographic map (only mounted when the Map view is active) -----
   const containerRef = useRef<HTMLDivElement>(null);
@@ -121,14 +136,14 @@ export function MarketMapView() {
   // Place a marker for every section that has coordinates.
   useEffect(() => {
     const map = mapRef.current;
-    if (view !== 'map' || !map || !mapReady || !gates) return;
+    if (view !== 'map' || !map || !mapReady || effectiveGates.length === 0) return;
 
     (async () => {
       const maplibregl = await import('maplibre-gl');
       markersRef.current.forEach((m) => m.remove());
       markersRef.current = [];
 
-      const located = gates
+      const located = effectiveGates
         .flatMap((g) => g.sections)
         .filter((s) => s.latitude != null && s.longitude != null);
 
@@ -154,7 +169,7 @@ export function MarketMapView() {
         map.fitBounds(bounds, { padding: 80, maxZoom: 16, duration: 0 });
       }
     })();
-  }, [gates, mapReady, view]);
+  }, [effectiveGates, mapReady, view]);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
@@ -204,10 +219,8 @@ export function MarketMapView() {
       {/* Content */}
       {isLoading ? (
         <LoadingState label={tc('loading')} />
-      ) : isError || !gates ? (
-        <ErrorState title={ts('errorTitle')} text={ts('errorText')} onRetry={() => refetch()} retryLabel={tc('retry')} />
       ) : view === 'plan' ? (
-        <MarketPlan gates={gates} shopsBySection={shopsBySection} query={query} />
+        <MarketPlan gates={effectiveGates} shopsBySection={effectiveShops} query={query} />
       ) : (
         <div className="relative h-[60vh] min-h-[380px] overflow-hidden rounded-card border border-line bg-white">
           {/* IMPORTANT: size the map container with h-full (not absolute
