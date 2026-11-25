@@ -15,7 +15,7 @@ export function SiteFooter() {
 
   return (
     <footer className="mt-16 border-t border-line bg-white">
-      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 md:grid-cols-[1.4fr_1fr_1fr]">
+      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <div>
           <Logo />
           <p className="mt-3 max-w-xs text-sm text-muted">{t('tagline')}</p>
@@ -39,12 +39,34 @@ export function SiteFooter() {
                 {nav('map')}
               </Link>
             </li>
+            <li>
+              <Link href="/calculator" className="hover:text-brand">
+                {nav('calculator')}
+              </Link>
+            </li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 className="text-sm font-semibold">{t('company')}</h4>
+          <ul className="mt-3 space-y-2 text-sm text-muted">
+            <li>
+              <Link href="/about" className="hover:text-brand">
+                {nav('about')}
+              </Link>
+            </li>
+            <li>
+              <Link href="/contact" className="hover:text-brand">
+                {nav('contact')}
+              </Link>
+            </li>
           </ul>
         </div>
 
         <div>
           <h4 className="text-sm font-semibold">{t('contact')}</h4>
           <p className="mt-3 text-sm text-muted">Kushoniyon Market, Dushanbe, Tajikistan</p>
+          <p className="mt-2 text-sm text-muted">info@kushoniyon.tj</p>
         </div>
       </div>
 
