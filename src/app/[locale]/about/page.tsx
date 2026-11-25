@@ -48,8 +48,9 @@ export default function AboutPage() {
       </div>
 
       {/* Stats band */}
-      <section className="border-y border-line bg-navy">
-        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-6 px-4 py-10 sm:px-6 lg:grid-cols-4">
+      <section className="relative overflow-hidden border-y border-line bg-navy">
+        <div aria-hidden className="pointer-events-none absolute inset-0 bg-grid opacity-60" />
+        <div className="relative mx-auto grid max-w-7xl grid-cols-2 gap-6 px-4 py-12 sm:px-6 lg:grid-cols-4">
           {STATS.map((s) => (
             <div key={s.key} className="text-center">
               <div className="num text-3xl font-extrabold text-white sm:text-4xl">{s.value}</div>
@@ -65,7 +66,7 @@ export default function AboutPage() {
           <h2 className="mb-6 text-2xl font-bold">{t('statsTitle')}</h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {values.map((v) => (
-              <div key={v.title} className="rounded-card border border-line bg-white p-6 shadow-card">
+              <div key={v.title} className="hover-lift rounded-card border border-line bg-white p-6 shadow-card hover:border-brand/40">
                 <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-brand-50 text-brand">
                   <v.icon className="h-5 w-5" aria-hidden />
                 </span>
@@ -78,8 +79,9 @@ export default function AboutPage() {
 
         {/* CTA */}
         <section className="pb-4">
-          <div className="overflow-hidden rounded-card bg-gradient-to-br from-navy to-brand-600 p-8 sm:p-10">
-            <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
+          <div className="relative overflow-hidden rounded-card bg-gradient-to-br from-navy to-brand-600 p-8 sm:p-10">
+            <div aria-hidden className="pointer-events-none absolute inset-0 bg-grid opacity-60" />
+            <div className="relative flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
               <div className="max-w-xl">
                 <h2 className="text-2xl font-bold text-white sm:text-3xl">{t('ctaTitle')}</h2>
                 <p className="mt-2 text-white/75">{t('ctaText')}</p>

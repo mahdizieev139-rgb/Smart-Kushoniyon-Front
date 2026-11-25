@@ -27,7 +27,7 @@ export function HeroSearch() {
   return (
     <form
       onSubmit={submit}
-      className="flex w-full max-w-xl items-center gap-2 rounded-2xl bg-white p-2 shadow-pop"
+      className="flex w-full max-w-xl items-center gap-2 rounded-2xl bg-white p-2 shadow-pop ring-1 ring-black/5 transition focus-within:ring-2 focus-within:ring-brand/50"
     >
       <div className="flex flex-1 items-center gap-2 pl-2">
         <Search className="h-5 w-5 shrink-0 text-muted" aria-hidden />

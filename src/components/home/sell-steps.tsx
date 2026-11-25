@@ -35,12 +35,18 @@ export function SellSteps() {
 
       <ol className="mt-8 grid gap-4 md:grid-cols-3">
         {steps.map((step, i) => (
-          <li key={step.title} className="rounded-card border border-line bg-white p-6 shadow-card">
-            <span className="num text-sm font-semibold text-brand">
+          <li
+            key={step.title}
+            className="hover-lift relative overflow-hidden rounded-card border border-line bg-white p-6 shadow-card hover:border-brand/40"
+          >
+            <span className="num absolute right-4 top-3 text-5xl font-bold text-brand-50 select-none" aria-hidden>
               {String(i + 1).padStart(2, '0')}
             </span>
-            <h3 className="mt-3 text-lg font-semibold">{step.title}</h3>
-            <p className="mt-1 text-sm text-muted">{step.text}</p>
+            <span className="num relative text-sm font-semibold text-brand">
+              {String(i + 1).padStart(2, '0')}
+            </span>
+            <h3 className="relative mt-3 text-lg font-semibold">{step.title}</h3>
+            <p className="relative mt-1 text-sm text-muted">{step.text}</p>
           </li>
         ))}
       </ol>

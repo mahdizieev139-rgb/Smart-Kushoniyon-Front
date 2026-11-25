@@ -21,7 +21,7 @@ export function ShopCard({ shop }: { shop: Shop }) {
   const name = shop.name ?? shop.slug;
 
   return (
-    <div className="group relative rounded-card border border-line bg-white shadow-card transition-shadow hover:shadow-pop">
+    <div className="hover-lift group relative rounded-card border border-line bg-white shadow-card hover:border-brand/40">
       <Link href={`/shops/${shop.slug}`} className="flex h-full flex-col gap-3 p-5">
         <div className="flex items-start gap-3">
           <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand">

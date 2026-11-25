@@ -23,9 +23,16 @@ export function ProductCard({ product }: { product: Product }) {
   const name = product.name ?? '—';
 
   return (
-    <div className="group relative overflow-hidden rounded-card border border-line bg-white shadow-card transition-shadow hover:shadow-pop">
+    <div className="hover-lift group relative overflow-hidden rounded-card border border-line bg-white shadow-card hover:border-brand/40">
       <Link href={`/products/${product.id}`} className="flex h-full flex-col">
-        <ProductImage src={image} alt={name} label={t('noImage')} className="aspect-[4/3] w-full" />
+        <div className="aspect-[4/3] w-full overflow-hidden">
+          <ProductImage
+            src={image}
+            alt={name}
+            label={t('noImage')}
+            className="h-full w-full transition-transform duration-300 group-hover:scale-105"
+          />
+        </div>
         <div className="flex flex-1 flex-col gap-2 p-4">
           <h3 className="line-clamp-2 text-sm font-medium text-ink group-hover:text-brand">{name}</h3>
           <div className="mt-auto flex items-center justify-between gap-2">

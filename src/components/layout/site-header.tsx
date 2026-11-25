@@ -41,7 +41,7 @@ export function SiteHeader() {
     href === '/' ? pathname === '/' : pathname.startsWith(href);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-white/10 bg-navy">
+    <header className="sticky top-0 z-40 border-b border-white/10 bg-navy/90 backdrop-blur supports-[backdrop-filter]:bg-navy/80">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
         {/* Brand */}
         <Link href="/" className="shrink-0 rounded-lg bg-white px-2.5 py-1.5">

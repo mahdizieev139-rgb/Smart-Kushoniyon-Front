@@ -41,7 +41,7 @@ export function CategoriesStrip() {
             <Link
               key={category.id}
               href={`/products?category=${category.slug}`}
-              className="group flex items-center gap-3 rounded-card border border-line bg-white p-4 shadow-card transition-colors hover:border-brand"
+              className="hover-lift group flex items-center gap-3 rounded-card border border-line bg-white p-4 shadow-card hover:border-brand"
             >
               <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-50 text-brand transition-colors group-hover:bg-brand group-hover:text-white">
                 <Boxes className="h-5 w-5" aria-hidden />

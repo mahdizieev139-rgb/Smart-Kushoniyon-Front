@@ -28,7 +28,7 @@ export function WhyKushoniyon() {
           {items.map((item) => (
             <div
               key={item.title}
-              className="rounded-card border border-line bg-canvas p-6 transition-colors hover:border-brand"
+              className="hover-lift rounded-card border border-line bg-white p-6 shadow-card hover:border-brand"
             >
               <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-brand-50 text-brand">
                 <item.icon className="h-5 w-5" aria-hidden />
