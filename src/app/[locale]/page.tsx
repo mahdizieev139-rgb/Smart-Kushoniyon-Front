@@ -12,6 +12,7 @@ import { HeroSearch } from '@/components/home/hero-search';
 import { CategoriesStrip } from '@/components/home/categories-strip';
 import { FeaturedShops } from '@/components/home/featured-shops';
 import { PopularProducts } from '@/components/home/popular-products';
+import { WhyKushoniyon } from '@/components/home/why-kushoniyon';
 import { SellSteps } from '@/components/home/sell-steps';
 import { LocatorChip } from '@/components/ui/locator-chip';
 import { Badge } from '@/components/ui/badge';
@@ -101,6 +102,9 @@ export default function HomePage() {
 
       {/* ---------- CATEGORIES (live data) ---------- */}
       <CategoriesStrip />
+
+      {/* ---------- WHY KUSHONIYON (value props) ---------- */}
+      <WhyKushoniyon />
 
       {/* ---------- FEATURED SHOPS (live data) ---------- */}
       <FeaturedShops />
